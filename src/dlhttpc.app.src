@@ -1,0 +1,14 @@
+{application, dlhttpc,
+ [{description, "Dispcount + Lightweight HTTP Client"},
+  {vsn, "0.1.0"},
+  {modules, [dlhttpc,dlhttpc_sup,dlhttpc_client,dlhttpc_sock,lhttp_lb]},
+  {registered, [dlhttpc_sup]},
+  {applications, [kernel, stdlib, ssl, crypto, dispcount]},
+  {mod, {dlhttpc, []}},
+  {env, [{connection_timeout, 60000},
+         {restart, permanent},
+         {shutdown, 10000},
+         {maxr, 10},
+         {maxt, 1}]}
+ ]}.
+
