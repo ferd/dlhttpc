@@ -15,6 +15,7 @@ init(Init) ->
 checkout(_From, State = #state{given=true}) ->
     {error, busy, State};
 checkout(From, State = #state{resource={ok, Socket}, ssl=Ssl}) ->
+    dlhttpc_sock:setopts(Socket, [{active,false}], Ssl),
     case gen_tcp:controlling_process(Socket, From) of
         ok ->
             {ok, {self(), Socket}, State#state{given=true}};
@@ -43,7 +44,8 @@ checkout(From, State = #state{resource={error, _Reason}}) ->
 checkout(From, State) ->
     {stop, {invalid_call, From, State}, State}.
 
-checkin(Socket, State = #state{resource={ok, Socket}, given=true}) ->
+checkin(Socket, State = #state{resource={ok, Socket}, given=true, ssl=Ssl}) ->
+    dlhttpc_sock:setopts(Socket, [{active, once}], Ssl),
     {ok, State#state{given=false}};
 checkin(_Socket, State) ->
     %% The socket doesn't match the one we had -- an error happened somewhere
@@ -51,7 +53,7 @@ checkin(_Socket, State) ->
 
 dead(State) ->
     %% aw shoot, someone lost our resource, we gotta create a new one:
-    case reconnect(State) of
+    case reconnect(State#state{given=false}) of
         {ok, NewState} ->
             {ok, NewState};
         {error, _Reason, NewState} -> % stuff might be down!
