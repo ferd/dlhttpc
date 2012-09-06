@@ -1,3 +1,33 @@
+%%% ----------------------------------------------------------------------------
+%%% Copyright (c) 2012, Frederic Trottier-Hebert
+%%% All rights reserved.
+%%%
+%%% Redistribution and use in source and binary forms, with or without
+%%% modification, are permitted provided that the following conditions are met:
+%%%    * Redistributions of source code must retain the above copyright
+%%%      notice, this list of conditions and the following disclaimer.
+%%%    * Redistributions in binary form must reproduce the above copyright
+%%%      notice, this list of conditions and the following disclaimer in the
+%%%      documentation and/or other materials provided with the distribution.
+%%%    * Neither the name of Erlang Training and Consulting Ltd. nor the
+%%%      names of its contributors may be used to endorse or promote products
+%%%      derived from this software without specific prior written permission.
+%%%
+%%% THIS SOFTWARE IS PROVIDED BY Erlang Training and Consulting Ltd. ''AS IS''
+%%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+%%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+%%% ARE DISCLAIMED. IN NO EVENT SHALL Erlang Training and Consulting Ltd. BE
+%%% LIABLE SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+%%% BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+%%% WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+%%% OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+%%% ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+%%% ----------------------------------------------------------------------------
+%%%
+%%% @author Fred Hebert <mononcqc@ferd.ca>
+%%% @doc Dispcount worker implementation for TCP socket handling
+%%% @end
+%%%
 -module(dlhttpc_handler).
 -behaviour(dispcount).
 -export([init/1, checkout/2, checkin/2, handle_info/2, dead/1, terminate/2, code_change/3]).
@@ -8,8 +38,7 @@
                 ssl}).
 
 init(Init) ->
-    %% Make it lazy to connect.
-    %{ok, reconnect(#state{init_arg=Init})}.
+    %% Make it lazy to connect. On checkout only!
     {ok, #state{init_arg=Init}}.
 
 checkout(_From, State = #state{given=true}) ->
@@ -29,8 +58,6 @@ checkout(From, State = #state{resource={ok, Socket}, ssl=Ssl}) ->
                 Return ->
                     Return
             end
-            %{ok, NewState} = reconnect(State),
-            %checkout(From, NewState)
     end;
 checkout(From, State = #state{resource={error, _Reason}}) ->
     case reconnect(State) of
@@ -39,8 +66,6 @@ checkout(From, State = #state{resource={error, _Reason}}) ->
         Return ->
             Return
     end;
-    %{ok, NewState} = reconnect(State),
-    %checkout(From, NewState);
 checkout(From, State) ->
     {stop, {invalid_call, From, State}, State}.
 
@@ -59,8 +84,6 @@ dead(State) ->
         {error, _Reason, NewState} -> % stuff might be down!
             {ok, NewState}
     end.
-    %{ok, NewState} = reconnect(State),
-    %{ok, NewState}.
 
 handle_info(_Msg, State) ->
     %% something unexpected with the TCP connection if we set it to active,once???
@@ -78,6 +101,6 @@ reconnect(State = #state{init_arg={Host, Port, Ssl, Timeout, SockOpts}}) ->
         {ok, Socket} ->
             {ok, State#state{resource = {ok, Socket}, ssl=Ssl}};
         {error, Reason} ->
-            io:format("reconnect fail: ~p~n",[Reason]),
+            error_logger:warning_msg("dlhttpc reconnect fail (~p): ~p~n",[{Host,Port,Ssl}, Reason]),
             {error, Reason, State#state{resource = {error, Reason}, ssl=Ssl}}
     end.

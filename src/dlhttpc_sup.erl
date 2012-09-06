@@ -1,5 +1,6 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
+%%% Copyright (c) 2012, Frederic Trottier-Hebert
 %%% All rights reserved.
 %%% 
 %%% Redistribution and use in source and binary forms, with or without
@@ -25,9 +26,11 @@
 %%% ----------------------------------------------------------------------------
 
 %%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Fred Hebert <mononcqc@ferd.ca>
 %%% @doc Top supervisor for the dlhttpc application.
 %%% This is normally started by the application behaviour implemented in
-%%% {@link dlhttpc}.
+%%% {@link dlhttpc}. An ETS table is started as part of the supervisor's
+%%% init function in order to support dispatching.
 %%% @end
 -module(dlhttpc_sup).
 -behaviour(supervisor).

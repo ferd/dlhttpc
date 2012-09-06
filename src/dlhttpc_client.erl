@@ -1,5 +1,6 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
+%%% Copyright (c) 2012, Frederic Trottier-Hebert
 %%% All rights reserved.
 %%%
 %%% Redistribution and use in source and binary forms, with or without
@@ -26,6 +27,7 @@
 
 %%% @private
 %%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Fred Hebert <mononcqc@ferd.ca>
 %%% @doc
 %%% This module implements the HTTP request handling. This should normally
 %%% not be called directly since it should be spawned by the dlhttpc module.

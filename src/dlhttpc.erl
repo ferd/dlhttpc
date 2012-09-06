@@ -1,5 +1,6 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
+%%% Copyright (c) 2012, Frederic Trottier-Hebert
 %%% All rights reserved.
 %%%
 %%% Redistribution and use in source and binary forms, with or without
@@ -25,6 +26,7 @@
 %%% ----------------------------------------------------------------------------
 
 %%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Fred Hebert <mononcqc@ferd.ca>
 %%% @doc Main interface to the lightweight http client.
 %%% See {@link request/4}, {@link request/5} and {@link request/6} functions.
 %%% @end
@@ -79,7 +81,7 @@ stop(_) ->
 %% For instance:
 %% `$ erl -s crypto -s ssl -s dlhttpc'
 %%
-%% For more info on possible return values the `application' module.
+%% For more info on possible return values, consult the `application' module.
 %% @end
 -spec start() -> ok | {error, any()}.
 start() ->
@@ -157,6 +159,7 @@ request(URL, Method, Hdrs, Body, Timeout) ->
 %%   Option = {connect_timeout, Milliseconds | infinity} |
 %%            {connect_options, [ConnectOptions]} |
 %%            {send_retry, integer()} |
+%%            {stream_to, pid()} |
 %%            {partial_upload, WindowSize} |
 %%            {partial_download, PartialDownloadOptions}
 %%   Milliseconds = integer()
@@ -204,6 +207,7 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
 %%   Option = {connect_timeout, Milliseconds | infinity} |
 %%            {connect_options, [ConnectOptions]} |
 %%            {send_retry, integer()} |
+%%            {stream_to, pid()} |
 %%            {partial_upload, WindowSize} |
 %%            {partial_download, PartialDownloadOptions}
 %%   Milliseconds = integer()
@@ -213,6 +217,7 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
 %%                          {part_size, PartSize}
 %%   PartSize = integer() | infinity
 %%   Result = {ok, {{StatusCode, ReasonPhrase}, Hdrs, ResponseBody}}
+%%          | {RequestId, pid()}
 %%          | {error, Reason}
 %%   StatusCode = integer()
 %%   ReasonPhrase = string()
@@ -275,6 +280,14 @@ request(URL, Method, Hdrs, Body, Timeout, Options) ->
 %% (see below) is specified, the client cannot retry after the first part
 %% of the body has been sent since it doesn't keep the whole entitity body
 %% in memory.
+%%
+%% `{stream_to, pid()}' specifies a pid to which the response must be
+%% streamed to. In this case, instead of the regular return value,
+%% `{ReqId, Pid}' will be returned. The possible values usually returned
+%% will be sent as messages of the form `{result, ReqId, From, Return}'
+%% where `Return' can be `{error, Reason}' or `{ok, {Code, Header, Body}}'.
+%% Otherwise, the messages can be of the form `{exit, ReqId, From, Reason}'
+%%  if, for some reason, the request handler crashed.
 %%
 %% `{partial_upload, WindowSize}' means that the request entity body will be
 %% supplied in parts to the client by the calling process. The `WindowSize'

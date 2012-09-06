@@ -1,5 +1,6 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
+%%% Copyright (c) 2012, Frederic Trottier-Hebert
 %%% All rights reserved.
 %%%
 %%% Redistribution and use in source and binary forms, with or without
@@ -26,6 +27,7 @@
 
 %%% @private
 %%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Fred Hebert <mononcqc@ferd.ca>
 %%% @doc
 %%% This module implements wrappers for socket operations.
 %%% Makes it possible to have the same interface to ssl and tcp sockets.
@@ -63,21 +65,21 @@ connect(Host, Port, Options, Timeout, true) ->
     Flag = process_flag(trap_exit, true),
     Res = ssl:connect(Host, Port, Options, Timeout),
     receive
-          {'EXIT',_Pid,timeout} -> exit(timeout)
-        after 0 ->
-                process_flag(trap_exit, Flag),
-                Res
-        end;
+        {'EXIT',_Pid,timeout} -> exit(timeout)
+    after 0 ->
+            process_flag(trap_exit, Flag),
+            Res
+    end;
 connect(Host, Port, Options, Timeout, false) ->
     % Avoid port leak with potential race condition in case of timeout
     Flag = process_flag(trap_exit, true),
     Res = gen_tcp:connect(Host, Port, Options, Timeout),
     receive
-          {'EXIT',_Pid,timeout} -> exit(timeout)
-        after 0 ->
-                process_flag(trap_exit, Flag),
-                Res
-        end.
+        {'EXIT',_Pid,timeout} -> exit(timeout)
+    after 0 ->
+            process_flag(trap_exit, Flag),
+            Res
+    end.
 
 %% @spec (Socket, SslFlag) -> {ok, Data} | {error, Reason}
 %%   Socket = socket()
