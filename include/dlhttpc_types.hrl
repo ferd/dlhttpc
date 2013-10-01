@@ -1,7 +1,7 @@
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
 %%% All rights reserved.
-%%% 
+%%%
 %%% Redistribution and use in source and binary forms, with or without
 %%% modification, are permitted provided that the following conditions are met:
 %%%    * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 %%%    * Neither the name of Erlang Training and Consulting Ltd. nor the
 %%%      names of its contributors may be used to endorse or promote products
 %%%      derived from this software without specific prior written permission.
-%%% 
+%%%
 %%% THIS SOFTWARE IS PROVIDED BY Erlang Training and Consulting Ltd. ''AS IS''
 %%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,7 +33,7 @@
         {connect_options, [term()]} |
         {connect_timeout, timeout()} |
         {connection_timeout, timeout()} |
-        {max_connections, pos_integer()} |
+        {max_connections, pos_integer() | bypass} |
         {stream_to, pid()} |
         {send_retry, non_neg_integer()} |
         {partial_upload, non_neg_integer() | infinity} |

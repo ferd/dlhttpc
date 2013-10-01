@@ -111,10 +111,16 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
         Hdrs, Host, Port, Body, PartialUpload),
     ConnectOptions = proplists:get_value(connect_options, Options, []),
     SockOpts = [binary, {packet, http}, {active, false} | ConnectOptions],
-    {SocketRef, Socket} = case dlhttpc_disp:checkout(Host, Port, Ssl, MaxConnections, ConnectionTimeout, SockOpts) of
-        {ok, Ref, S}   -> {Ref, S}; % Re-using HTTP/1.1 connections
-        {error, CheckoutErr} -> throw(CheckoutErr)
-    end,
+    {SocketRef, Socket} =
+        case MaxConnections of
+            bypass ->
+                {undefined, undefined};
+            Number when is_integer(Number) ->
+                case dlhttpc_disp:checkout(Host, Port, Ssl, MaxConnections, ConnectionTimeout, SockOpts) of
+                    {ok, Ref, S} -> {Ref, S}; % Re-using HTTP/1.1 connections
+                    {error, CheckoutErr} -> throw(CheckoutErr)
+                end
+        end,
     State = #client_state{
         req_id = ReqId,
         host = Host,
@@ -139,10 +145,13 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
         part_size = proplists:get_value(part_size,
             PartialDownloadOptions, infinity)
     },
-    Response = case send_request(State) of
-        {R, undefined} ->
+    Response = case {MaxConnections, send_request(State)} of
+        {bypass, {R, NewSocket}} ->
+            lhttpc_sock:close(NewSocket, Ssl),
             {ok, R};
-        {R, NewSocket} ->
+        {_, {R, undefined}} ->
+            {ok, R};
+        {_, {R, NewSocket}} ->
             % The socket we ended up doing the request over is returned
             % here, it might be the same as Socket, but we don't know.
             dlhttpc_disp:checkin(SocketRef, NewSocket),
@@ -153,6 +162,24 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
 send_request(#client_state{attempts = 0}) ->
     % Don't try again if the number of allowed attempts is 0.
     throw(connection_closed);
+send_request(#client_state{socket = undefined} = State) ->
+    Host = State#client_state.host,
+    Port = State#client_state.port,
+    ConnectOptions = State#client_state.connect_options,
+    SockOpts = [binary, {packet, http}, {active, false} | ConnectOptions],
+    Timeout = State#client_state.connect_timeout,
+    Ssl = State#client_state.ssl,
+    case dlhttpc_sock:connect(Host, Port, SockOpts, Timeout, Ssl) of
+        {ok, Socket} ->
+            send_request(State#client_state{socket = Socket});
+        {error, etimedout} ->
+            % TCP stack decided to give up
+            throw(connect_timeout);
+        {error, timeout} ->
+            throw(connect_timeout);
+        {error, Reason} ->
+            erlang:error(Reason)
+    end;
 send_request(State) ->
     Socket = State#client_state.socket,
     Ssl = State#client_state.ssl,
