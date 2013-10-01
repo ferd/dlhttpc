@@ -147,7 +147,7 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
     },
     Response = case {MaxConnections, send_request(State)} of
         {bypass, {R, NewSocket}} ->
-            lhttpc_sock:close(NewSocket, Ssl),
+            dlhttpc_sock:close(NewSocket, Ssl),
             {ok, R};
         {_, {R, undefined}} ->
             {ok, R};
