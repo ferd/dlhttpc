@@ -35,7 +35,7 @@ The following variables must be defined:
 
 Warning
 -------
-This is an alpha version of the library, still being tested.
+This is a beta version of the library, still being tested.
 
 Dispcount registers a process for each of the pools started. This sadly means that each endpoint (host + port + ssl) will register its own process. This is annoying, but shouldn't matter too much given the use case for dlhttpc is for many requests to few endpoints.
 
@@ -46,5 +46,4 @@ Todo
 - Fix application behaviour to allow orderly shutdown, including pools.
 - Reduce the system load in case of endpoints going offline by having a connection monitor.
 - Fix tests. They were ported mostly directly from lhttpc, and dlhttpc was tested in the realm of private projects. Tests should be made available to a greater public.
-- Try to merge enhancements from newer lhttpc forks.
 - Document how to use things better. Right now usage is 'similar to whatever lhttpc was'
