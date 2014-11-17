@@ -146,10 +146,10 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
             PartialDownloadOptions, infinity)
     },
     Response = case {MaxConnections, send_request(State)} of
+        {_, {R, undefined}} ->
+            {ok, R};
         {bypass, {R, NewSocket}} ->
             dlhttpc_sock:close(NewSocket, Ssl),
-            {ok, R};
-        {_, {R, undefined}} ->
             {ok, R};
         {_, {R, NewSocket}} ->
             % The socket we ended up doing the request over is returned
