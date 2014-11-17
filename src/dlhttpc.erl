@@ -586,11 +586,6 @@ verify_options([{connect_timeout, infinity} | Options], Errors) ->
 verify_options([{connect_timeout, MS} | Options], Errors)
         when is_integer(MS), MS >= 0 ->
     verify_options(Options, Errors);
-verify_options([{connection_timeout, infinity} | Options], Errors) ->
-    verify_options(Options, Errors);
-verify_options([{connection_timeout, MS} | Options], Errors)
-        when is_integer(MS), MS >= 0 ->
-    verify_options(Options, Errors);
 verify_options([{max_connections, N} | Options], Errors)
         when is_integer(N), N > 0; N =:= bypass ->
     verify_options(Options, Errors);
