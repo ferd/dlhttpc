@@ -32,7 +32,6 @@
 -type option() ::
         {connect_options, [term()]} |
         {connect_timeout, timeout()} |
-        {connection_timeout, timeout()} |
         {max_connections, pos_integer() | bypass} |
         {stream_to, pid()} |
         {send_retry, non_neg_integer()} |
