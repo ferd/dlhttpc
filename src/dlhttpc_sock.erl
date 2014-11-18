@@ -1,3 +1,4 @@
+%% coding: latin-1
 %%% ----------------------------------------------------------------------------
 %%% Copyright (c) 2009, Erlang Training and Consulting Ltd.
 %%% Copyright (c) 2012, Frederic Trottier-Hebert

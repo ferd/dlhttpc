@@ -10,6 +10,7 @@
 erl_crash.dump
 /config/production/*.bert
 .eunit
+.rebar
 
 doc/edoc-info
 doc/*.html
@@ -17,4 +18,5 @@ doc/*.png
 doc/*.css
 util/*.beam
 cover_report/
+
 
