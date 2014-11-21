@@ -108,7 +108,7 @@ execute(ReqId, From, Host, Port, Ssl, Path, Method, Hdrs, Body, Options) ->
     NormalizedMethod = dlhttpc_lib:normalize_method(Method),
     MaxConnections = proplists:get_value(max_connections, Options, 10),
     ConnectionTimeout = proplists:get_value(connect_timeout, Options, infinity),
-    CheckoutRetry = 1 + proplists:get_value(checkout_retry, Options, 0),
+    CheckoutRetry = proplists:get_value(checkout_retry, Options, 0),
     {ChunkedUpload, Request} = dlhttpc_lib:format_request(Path, NormalizedMethod,
         Hdrs, Host, Port, Body, PartialUpload),
     ConnectOptions = proplists:get_value(connect_options, Options, []),

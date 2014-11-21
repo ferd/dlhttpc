@@ -50,12 +50,13 @@ checkout(Host, Port, Ssl, MaxConn, ConnTimeout, SocketOpts, CheckoutRetry) ->
             {error, Reason}
     end.
 
-checkout(Info, CheckoutRetry) ->
-    RetryFn = fun(Response, 0) -> Response;
-                 ({ok,_,_}=Response, _) -> Response;
-                 (_Response, N) -> checkout(Info, N) end,
-    Response = dispcount:checkout(Info),
-    RetryFn(Response, CheckoutRetry-1).
+checkout(Info, 0) ->
+    dispcount:checkout(Info);
+checkout(Info, Retries) ->
+    case dispcount:checkout(Info) of
+        {error, _} -> checkout(Info, Retries-1);
+        Response -> Response
+    end.
 
 checkin({Info, Ref, _Owner, _Ssl}) ->
     dispcount:checkin(Info, Ref, dead).
