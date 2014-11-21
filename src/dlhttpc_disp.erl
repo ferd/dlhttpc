@@ -38,17 +38,23 @@
 %%         dispatcher pool has been inactive for that period of time. When
 %%         that happens, it is shut down, to be reopened next time.
 -module(dlhttpc_disp).
--export([checkout/6, checkin/1, checkin/2]).
+-export([checkout/7, checkin/1, checkin/2]).
 -define(TABLE, ?MODULE).
 
-checkout(Host, Port, Ssl, MaxConn, ConnTimeout, SocketOpts) ->
+checkout(Host, Port, Ssl, MaxConn, ConnTimeout, SocketOpts, CheckoutRetry) ->
     Info = find_disp({Host, Port, Ssl}, {MaxConn, ConnTimeout, SocketOpts}),
-    case dispcount:checkout(Info) of
+    case checkout(Info, CheckoutRetry) of
         {ok, CheckinReference, {Owner,Socket}} ->
             {ok, {Info,CheckinReference,Owner,Ssl}, Socket};
         {error, Reason} ->
             {error, Reason}
     end.
+
+checkout(Info, CheckoutRetry) ->
+    RetryFn = fun(Response, 0) -> Response;
+                 (_Response, N) -> checkout(Info, N) end,
+    Response = dispcount:checkout(Info),
+    RetryFn(Response, CheckoutRetry-1).
 
 checkin({Info, Ref, _Owner, _Ssl}) ->
     dispcount:checkin(Info, Ref, dead).
