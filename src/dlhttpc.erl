@@ -582,6 +582,9 @@ kill_client_after(Pid, Timeout) ->
 verify_options([{send_retry, N} | Options], Errors)
         when is_integer(N), N >= 0 ->
     verify_options(Options, Errors);
+verify_options([{checkout_retry, N} | Options], Errors)
+        when is_integer(N), N >= 0 ->
+    verify_options(Options, Errors);
 verify_options([{connect_timeout, infinity} | Options], Errors) ->
     verify_options(Options, Errors);
 verify_options([{connect_timeout, MS} | Options], Errors)
