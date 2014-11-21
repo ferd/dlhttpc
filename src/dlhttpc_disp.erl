@@ -52,6 +52,7 @@ checkout(Host, Port, Ssl, MaxConn, ConnTimeout, SocketOpts, CheckoutRetry) ->
 
 checkout(Info, CheckoutRetry) ->
     RetryFn = fun(Response, 0) -> Response;
+                 ({ok,_,_}=Response, _) -> Response;
                  (_Response, N) -> checkout(Info, N) end,
     Response = dispcount:checkout(Info),
     RetryFn(Response, CheckoutRetry-1).
