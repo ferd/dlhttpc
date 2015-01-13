@@ -26,7 +26,7 @@
 
 {application, dlhttpc,
  [{description, "Dispcount + Lightweight HTTP Client"},
-  {vsn, "0.2.1"},
+  {vsn, "0.3.0"},
   {modules, [dlhttpc, dlhttpc_sup, dlhttpc_client, dlhttpc_sock, lhttp_lb]},
   {registered, [dlhttpc_sup]},
   {applications, [kernel, stdlib, ssl, crypto, dispcount]},
