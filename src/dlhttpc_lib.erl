@@ -200,6 +200,8 @@ add_mandatory_hdrs(Method, Hdrs, Host, Port, Body, PartialUpload) ->
     ContentHdrs = add_content_headers(Method, Hdrs, Body, PartialUpload),
     add_host(ContentHdrs, Host, Port).
 
+add_content_headers("PATCH", Hdrs, Body, PartialUpload) ->
+    add_content_headers(Hdrs, Body, PartialUpload);
 add_content_headers("POST", Hdrs, Body, PartialUpload) ->
     add_content_headers(Hdrs, Body, PartialUpload);
 add_content_headers("PUT", Hdrs, Body, PartialUpload) ->
