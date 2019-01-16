@@ -26,7 +26,7 @@
 %%% ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%% ----------------------------------------------------------------------------
 
-%%% @author Oscar Hellström <oscar@hellstrom.st>
+%%% @author Oscar Hellstrï¿½m <oscar@hellstrom.st>
 %%% @author Fred Hebert <mononcqc@ferd.ca>
 %%% @doc Main interface to the lightweight http client.
 %%% See {@link request/4}, {@link request/5} and {@link request/6} functions.
@@ -56,14 +56,6 @@
 -spec start(normal | {takeover, node()} | {failover, node()}, any()) ->
     {ok, pid()}.
 start(_, Opts) ->
-    case lists:member({seed,1}, ssl:module_info(exports)) of
-        true ->
-            % Make sure that the ssl random number generator is seeded
-            % This was new in R13 (ssl-3.10.1 in R13B vs. ssl-3.10.0 in R12B-5)
-            ssl:seed(crypto:rand_bytes(255));
-        false ->
-            ok
-    end,
     if is_list(Opts) -> dlhttpc_sup:start_link(Opts);
        true -> dlhttpc_sup:start_link()
     end.
